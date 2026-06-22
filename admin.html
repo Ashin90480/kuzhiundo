@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuzhiundo — Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">🕳️</div>
+    <span class="logo-text">Kuzhi<span>undo</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-cta">Back to Home</a></li>
+  </ul>
+</nav>
+
+<div id="admin-login-page" class="section">
+  <div class="section-title">🛡️ Admin Login</div>
+  <div class="section-sub">Login to view and manage reported road issues.</div>
+  <div class="report-section">
+    <div class="form-group mb-1">
+      <label>Username</label>
+      <input type="text" id="admin-user" placeholder="admin" value="admin">
+    </div>
+    <div class="form-group mb-15">
+      <label>Password</label>
+      <input type="password" id="admin-pass" placeholder="••••••••" value="1234">
+    </div>
+    <button class="submit-btn" onclick="adminLogin()">Login →</button>
+    <p class="modal-hint">Demo credentials: admin / 1234</p>
+  </div>
+</div>
+
+<div id="admin-panel" class="hidden">
+  <div class="admin-header">
+    <div class="admin-title">🛡️ Kuzhiundo Admin Panel</div>
+    <div class="admin-header-right">
+      <span class="admin-badge">ADMIN</span>
+      <button class="admin-back-btn" onclick="window.location.href='index.html'">← Back to Site</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event,'overview')">📊 Overview</button>
+      <button class="tab-btn" onclick="switchTab(event,'reports')">📋 All Reports</button>
+      <button class="tab-btn" onclick="switchTab(event,'districts')">🗺️ By District</button>
+    </div>
+
+    <div class="tab-pane active" id="tab-overview">
+      <div class="stats-row" id="admin-stats"></div>
+      <div class="admin-charts-grid">
+        <div class="chart-card">
+          <div class="chart-card-title">Reports by Severity</div>
+          <div id="sev-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Status Breakdown</div>
+          <div id="status-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-reports">
+      <div class="section-sub" id="admin-report-filter-label">Showing all reports</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>District</th>
+              <th>Road / Area</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Upvotes</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-districts">
+      <div class="section-sub">Click a district card below to filter reports for that district.</div>
+      <div id="admin-district-grid" class="district-grid"></div>
+      <div class="chart-card">
+        <div class="chart-card-title">Reports per District</div>
+        <div id="district-chart" class="bar-chart"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

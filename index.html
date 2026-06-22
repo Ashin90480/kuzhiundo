@@ -1,0 +1,148 @@
+<!DOCTYPE html>node -e "const mongoose=require('mongoose'); mongoose.connect('mongodb://127.0.0.1:27017/kuziundo').then(async()=>{const R=mongoose.model('Report',new mongoose.Schema({},{ strict:false })); console.log(await R.find().limit(3)); process.exit()})"
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuzhiundo — Kerala Road Issue Reporter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <div class="logo-icon">🕳️</div>
+    <span class="logo-text">Kuzhi<span>undo</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home')" id="nav-home" class="active">Home</a></li>
+    <li><a href="#" onclick="scrollToReports()">View Reports</a></li>
+    <li><a href="#" onclick="showPage('home'); setTimeout(()=>document.getElementById('report-form').scrollIntoView({behavior:'smooth'}),100)">Report Issue</a></li>
+  </ul>
+</nav>
+
+<!-- ===================== PUBLIC PAGE ===================== -->
+<div id="public-page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Kerala Road Issue Reporter</div>
+    <h1>Kuzhi<span>undo</span></h1>
+    <div class="hero-subtitle">കുഴിഉണ്ടോ? — Is there a pothole?</div>
+    <p class="hero-desc">Report road potholes and issues across Kerala's 14 districts. Together we make our roads safer.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('report-form').scrollIntoView({behavior:'smooth'})">
+        🕳️ Report a Pothole
+      </button>
+      <button class="btn-ghost" onclick="scrollToReports()">
+        📋 View Reports
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="total-reports">0</div>
+        <div class="hero-stat-label">Total Reports</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="fixed-count">0</div>
+        <div class="hero-stat-label">Fixed</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">14</div>
+        <div class="hero-stat-label">Districts</div>
+      </div>
+    </div> 
+  </div>
+
+  <!-- DISTRICTS -->
+  <div class="section">
+    <div class="section-title">📍 Kerala Districts</div>
+    <div class="section-sub">Click a district to filter reports or pre-select for reporting</div>
+    <div class="district-grid" id="district-grid"></div>
+  </div>
+
+  <!-- REPORT FORM -->
+  <div class="section" id="report-form">
+    <div class="section-title">🕳️ Report a Road Issue</div>
+    <div class="section-sub">Fill in the details below to submit your report</div>
+    <form class="report-section" id="report-form-element" onsubmit="event.preventDefault(); submitReport();">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>District *</label>
+          <select id="sel-district">
+            <option value="">Select District</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Road / Area Name *</label>
+          <input type="text" id="inp-road" placeholder="e.g. NH-66 near Palayam, Trivandrum">
+        </div>
+      </div>
+
+      <div class="form-group mb-1">
+        <label>Description / Comment *</label>
+        <textarea id="inp-desc" placeholder="Describe the pothole or road damage. Size, depth, how long it's been there..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Severity *</label>
+          <div class="severity-selector">
+            <button type="button" class="sev-btn" onclick="selectSev(this,'low')">🟢 Minor</button>
+            <button type="button" class="sev-btn" onclick="selectSev(this,'medium')">🟡 Moderate</button>
+            <button type="button" class="sev-btn" onclick="selectSev(this,'high')">🟠 Severe</button>
+            <button type="button" class="sev-btn" onclick="selectSev(this,'critical')">🔴 Critical</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Your Name (optional)</label>
+          <input type="text" id="inp-name" placeholder="Anonymous">
+        </div>
+      </div>
+
+      <div class="form-group mb-1">
+        <label>📷 Upload Photos</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" multiple accept="image/*" id="img-upload" onchange="handleImgUpload(event)">
+          <input type="file" capture="environment" accept="image/*" id="img-upload-camera" onchange="handleImgUpload(event)" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Choose from device or open camera directly<br>
+            <span class="upload-hint">JPG, PNG — max 5MB each</span>
+          </div>
+          <div class="upload-actions">
+            <button type="button" class="btn-ghost" onclick="triggerPhotoUpload()">Device Photos</button>
+            <button type="button" class="btn-ghost" onclick="triggerCameraUpload()">Use Camera</button>
+          </div>
+        </div>
+        <div class="image-preview-grid" id="preview-grid"></div>
+      </div>
+
+      <div class="form-group mb-1">
+        <label>📍 Location</label>
+        <button type="button" class="loc-btn" onclick="getLocation()">
+          <span class="loc-icon">🎯</span> Use Current Location (GPS)
+        </button>
+        <div class="loc-display" id="loc-display">📍 Location captured</div>
+      </div>
+
+      <button class="submit-btn" type="submit">Submit Report →</button>
+
+    </form>
+  </div>
+
+</div><!-- end #public-page -->
+
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Kuzhiundo</strong> — Kerala Road Issue Reporter · Built for a better Kerala 🌴 · <strong>കേരളം</strong>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
